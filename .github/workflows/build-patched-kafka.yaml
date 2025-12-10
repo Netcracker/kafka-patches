@@ -1,6 +1,9 @@
 # .github/workflows/qb-build-kafka.yml
 name: Build .tgz for Apache Kafka
-run-name: "Image for ${{ github.event.repository.name }}: ${{ github.run_number }} - ${{ github.actor }}"
+run-name: |
+  Kafka: ${{ inputs.kafka-tag }} ||
+  Release tag: ${{ inputs.tag }} ||
+  Qubership-kafka target branch: ${{ inputs.target-ref }}
 
 on:
   workflow_dispatch:
