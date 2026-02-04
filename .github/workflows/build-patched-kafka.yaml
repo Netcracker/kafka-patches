@@ -11,11 +11,11 @@ on:
       kafka-tag:
         description: "Kafka tag to build"
         required: true
-        default: "3.9.1"
+        default: "4.1.1"
       tag:
-        description: "Tag to create (default: v1.0.0)"
+        description: "Tag to create (default: kafka-4.1.1-patched)"
         required: false
-        default: "kafka-3.9.1-patched"
+        default: "kafka-4.1.1-patched"
       forceCreate:
         type: boolean
         description: "Override tag name (default: true)"
@@ -154,5 +154,6 @@ jobs:
           repo: qubership-kafka
           event-type: kafka-patched-build
           client-payload: '{"kafka-version": "${{ inputs.kafka-tag }}", "scala-version": "${{ inputs.scalaVersion }}", "javaVersion": "${{ inputs.javaVersion }}", "kafka-distro": "${{ env.KAFKA_DISTRO }}", "kafka-distro-url": "https://github.com/${{ github.repository_owner }}/kafka-patches/releases/download/${{ inputs.tag }}/${{ env.KAFKA_DISTRO }}", "target-ref": "${{ inputs.target-ref }}", "replace-symbol": "${{ inputs.replace-symbol }}", "tag": "${{ inputs.tag }}", "repo":"${{ github.repository }}"}'
+
 
 
