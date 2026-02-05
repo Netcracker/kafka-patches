@@ -39,7 +39,7 @@ on:
         description: "Symbol to change '/' in ref name to"
         required: true
         default: "_"
-        
+
 permissions:
   contents: read
 
@@ -68,8 +68,8 @@ jobs:
         uses: netcracker/qubership-workflow-hub/actions/tag-action@8d542a426ce561c7dce745f6b9cee068d1d7e101 #2.0.10
         with:
           ref: ${{ github.ref_name }}
-          tag-name: ${{ inputs.tag }}
-          force-create: ${{ inputs.forceCreate }}
+          tag-name: ${{ env.TAG }}
+          force-create: ${{ env.FORCE_CREATE }}
           switch-to-tag: true
           create-release: true
           draft-release: false
@@ -81,22 +81,22 @@ jobs:
         run: |
           rm -rf ./*
 
-      - name: Checkout kafka tag ${{ inputs.kafka-tag }}
+      - name: Checkout kafka tag ${{ env.KAFKA_TAG }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: apache/kafka
-          ref: ${{ inputs.kafka-tag }}
+          ref: ${{ env.KAFKA_TAG }}
 
-      - name: Checkout kafka-patches tag ${{ inputs.tag }}
+      - name: Checkout kafka-patches tag ${{ env.TAG }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ inputs.tag }}
+          ref: ${{ env.TAG }}
           path: kafka-patches
 
       - name: Apply patches
         run: |
           cd ${GITHUB_WORKSPACE}
-          for p in ./kafka-patches/kafka-patches/${{ inputs.kafka-tag }}/*.patch; do
+          for p in ./kafka-patches/kafka-patches/${{ env.KAFKA_TAG }}/*.patch; do
             echo "Applying $p…"
             git apply -p1 --ignore-space-change --ignore-whitespace "$p"
           done
@@ -106,13 +106,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           distribution: temurin
-          java-version: ${{ inputs.javaVersion }}
+          java-version: ${{ env.JAVA_VERSION }}
 
       - name: Cache Gradle
-        uses: actions/cache@v4
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             ~/.gradle/caches
@@ -122,13 +122,13 @@ jobs:
       - name: Build and test (skip Spotless and RAT)
         run: |
           ./gradlew clean -x spotlessCheck -x rat -x test check releaseTarGz \
-            -PscalaVersion=${{ inputs.scalaVersion }} \
+            -PscalaVersion=${{ env.SCALA_VERSION }} \
             --warning-mode all \
             --stacktrace
 
       - name: Upload Kafka distribution
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: kafka-distribution
           path: core/build/distributions/*.tgz
@@ -136,14 +136,14 @@ jobs:
       - name: "Upload assets"
         uses: netcracker/qubership-workflow-hub/actions/assets-action@8d542a426ce561c7dce745f6b9cee068d1d7e101 #2.0.10
         with:
-          tag: ${{ inputs.tag }}
+          tag: ${{ env.TAG }}
           item-path: core/build/distributions/*.tgz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload failed test report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: core-test-report
           path: core/build/reports/tests/test/
@@ -165,7 +165,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: qubership-kafka
           event-type: kafka-patched-build
-          client-payload: '{"kafka-version": "${{ inputs.kafka-tag }}", "scala-version": "${{ inputs.scalaVersion }}", "javaVersion": "${{ inputs.javaVersion }}", "kafka-distro": "${{ env.KAFKA_DISTRO }}", "kafka-distro-url": "https://github.com/${{ github.repository_owner }}/kafka-patches/releases/download/${{ inputs.tag }}/${{ env.KAFKA_DISTRO }}", "target-ref": "${{ inputs.target-ref }}", "replace-symbol": "${{ inputs.replace-symbol }}", "tag": "${{ inputs.tag }}", "repo":"${{ github.repository }}"}'
+          client-payload: '{"kafka-version": "${{ env.KAFKA_TAG }}", "scala-version": "${{ env.SCALA_VERSION }}", "javaVersion": "${{ env.JAVA_VERSION }}", "kafka-distro": "${{ env.KAFKA_DISTRO }}", "kafka-distro-url": "https://github.com/${{ github.repository_owner }}/kafka-patches/releases/download/${{ env.TAG }}/${{ env.KAFKA_DISTRO }}", "target-ref": "${{ env.TARGET_REF }}", "replace-symbol": "${{ env.REPLACE_SYMBOL }}", "tag": "${{ env.TAG }}", "repo":"${{ github.repository }}"}'
 
 
 
