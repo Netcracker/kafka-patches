@@ -7,7 +7,7 @@ run-name: |
 
 on:
   schedule:
-    - cron: 0 2 * * *
+    - cron: 0 0 1 * *
   workflow_dispatch:
     inputs:
       kafka-tag:
@@ -166,6 +166,7 @@ jobs:
           repo: qubership-kafka
           event-type: kafka-patched-build
           client-payload: '{"kafka-version": "${{ env.KAFKA_TAG }}", "scala-version": "${{ env.SCALA_VERSION }}", "javaVersion": "${{ env.JAVA_VERSION }}", "kafka-distro": "${{ env.KAFKA_DISTRO }}", "kafka-distro-url": "https://github.com/${{ github.repository_owner }}/kafka-patches/releases/download/${{ env.TAG }}/${{ env.KAFKA_DISTRO }}", "target-ref": "${{ env.TARGET_REF }}", "replace-symbol": "${{ env.REPLACE_SYMBOL }}", "tag": "${{ env.TAG }}", "repo":"${{ github.repository }}"}'
+
 
 
 
