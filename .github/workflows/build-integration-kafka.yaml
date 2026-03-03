@@ -1,8 +1,8 @@
 # .github/workflows/qb-build-kafka.yml
-name: Build .tgz for Apache Kafka
+name: Build Integration Kafka
 run-name: |
   Kafka: ${{ inputs.kafka-tag || '4.1.1' }} |
-  Release tag: ${{ inputs.tag || 'kafka-4.1.1-patched' }} |
+  Release: ${{ inputs.tag || 'kafka-4.1.1-patched' }} |
   Qubership-kafka target branch: ${{ inputs.target-ref || 'main' }}
 
 on:
